@@ -4,7 +4,7 @@ A fun and interactive memory game built with vanilla JavaScript, HTML, and CSS.
 
 ## 🎮 Play the Game
 
-**Live Demo:** [Play Memory Game](https://xluo3503.github.io/memory-game/)
+**Live Demo:** [Play Memory Game](https://xinwei89.github.io/memory-game/)
 
 ## 🎯 Features
 

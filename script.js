@@ -17,8 +17,8 @@ class MemoryGame {
         this.startTime = null;
         this.timerInterval = null;
         this.isProcessing = false;
-        this.gridSize = 4;
-        this.totalPairs = 8;
+        this.gridSize = 2;
+        this.totalPairs = 2;
         this.gameStarted = false;
         
         this.bindInitialEvents();

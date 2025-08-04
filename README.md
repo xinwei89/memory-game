@@ -8,11 +8,12 @@ A fun and interactive memory game built with vanilla JavaScript, HTML, and CSS.
 
 ## 🎯 Features
 
-- Multiple grid sizes (4x4, 6x6, 8x8)
+- Multiple grid sizes (2x2, 4x4, 6x6, 8x8)
 - Beautiful random images from Picsum
 - Move counter and timer
 - Responsive design
 - Smooth card flip animations
+- Fireworks celebration when you win!
 
 ## 🚀 How to Play
 

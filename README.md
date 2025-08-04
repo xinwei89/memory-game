@@ -4,7 +4,7 @@ A fun and interactive memory game built with vanilla JavaScript, HTML, and CSS.
 
 ## 🎮 Play the Game
 
-**Live Demo:** [Play Memory Game](https://yourusername.github.io/memory-game/)
+**Live Demo:** [Play Memory Game](https://xluo3503.github.io/memory-game/)
 
 ## 🎯 Features
 
@@ -28,6 +28,23 @@ A fun and interactive memory game built with vanilla JavaScript, HTML, and CSS.
 - CSS3 (Grid, Flexbox, Animations)
 - Vanilla JavaScript (ES6+)
 - Picsum Photos API for random images
+
+## 🚀 Deployment
+
+This project is deployed using GitHub Pages. To deploy your own version:
+
+1. Fork this repository
+2. Go to your repository settings
+3. Navigate to "Pages" section
+4. Set source to "Deploy from a branch"
+5. Select "main" branch and "/ (root)" folder
+6. Your game will be available at `https://yourusername.github.io/memory-game/`
+
+## 🏗 Local Development
+
+1. Clone the repository
+2. Open `index.html` in your browser
+3. No build process required - it's vanilla JavaScript!
 
 ## 📱 Responsive Design
 

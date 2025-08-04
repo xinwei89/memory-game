@@ -58,11 +58,15 @@ class MemoryGame {
     
     createCards() {
         this.cards = [];
+        // Use specific image IDs from Picsum for better reliability
+        const imageIds = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 210, 220, 230, 240, 250, 260, 270, 280, 290, 300, 310, 320];
+        
         // Create pairs of images based on grid size
-        for (let i = 1; i <= this.totalPairs; i++) {
-            const imageUrl = `https://picsum.photos/100/100?random=${i}`;
-            this.cards.push({ id: Math.random(), imageUrl: imageUrl, imageId: i, isFlipped: false, isMatched: false });
-            this.cards.push({ id: Math.random(), imageUrl: imageUrl, imageId: i, isFlipped: false, isMatched: false });
+        for (let i = 0; i < this.totalPairs; i++) {
+            const imageId = imageIds[i % imageIds.length];
+            const imageUrl = `https://picsum.photos/id/${imageId}/100/100`;
+            this.cards.push({ id: Math.random(), imageUrl: imageUrl, imageId: i + 1, isFlipped: false, isMatched: false });
+            this.cards.push({ id: Math.random(), imageUrl: imageUrl, imageId: i + 1, isFlipped: false, isMatched: false });
         }
     }
     
@@ -97,6 +101,37 @@ class MemoryGame {
             img.style.height = '100%';
             img.style.objectFit = 'cover';
             img.style.borderRadius = '8px';
+            
+            // Add error handling for failed image loads
+            img.onerror = () => {
+                // Create a colorful fallback div if image fails to load
+                const fallback = document.createElement('div');
+                fallback.style.width = '100%';
+                fallback.style.height = '100%';
+                fallback.style.borderRadius = '8px';
+                fallback.style.display = 'flex';
+                fallback.style.alignItems = 'center';
+                fallback.style.justifyContent = 'center';
+                fallback.style.fontSize = '24px';
+                fallback.style.fontWeight = 'bold';
+                fallback.style.color = 'white';
+                
+                // Generate a consistent color based on the image ID
+                const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9'];
+                fallback.style.backgroundColor = colors[card.imageId % colors.length];
+                fallback.textContent = card.imageId;
+                
+                cardFront.removeChild(img);
+                cardFront.appendChild(fallback);
+            };
+            
+            // Add loading placeholder
+            img.onload = () => {
+                img.style.opacity = '1';
+            };
+            
+            img.style.opacity = '0';
+            img.style.transition = 'opacity 0.3s ease';
             
             cardFront.appendChild(img);
             

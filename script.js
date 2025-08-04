@@ -233,6 +233,54 @@ class MemoryGame {
         clearInterval(this.timerInterval);
         const finalTime = this.timerElement.textContent;
         this.messageElement.textContent = `🎉 Congratulations! You won in ${this.moves} moves and ${finalTime}!`;
+        this.messageElement.classList.add('celebration-message');
+        
+        // Trigger fireworks animation
+        this.createFireworks();
+    }
+    
+    createFireworks() {
+        // Create fireworks container if it doesn't exist
+        let fireworksContainer = document.querySelector('.fireworks-container');
+        if (!fireworksContainer) {
+            fireworksContainer = document.createElement('div');
+            fireworksContainer.className = 'fireworks-container';
+            document.body.appendChild(fireworksContainer);
+        }
+        
+        // Clear any existing fireworks
+        fireworksContainer.innerHTML = '';
+        
+        // Create multiple fireworks at random positions
+        for (let i = 0; i < 6; i++) {
+            setTimeout(() => {
+                const firework = document.createElement('div');
+                firework.className = `firework firework-${i + 1}`;
+                
+                // Random position
+                const x = Math.random() * (window.innerWidth - 100) + 50;
+                const y = Math.random() * (window.innerHeight - 200) + 100;
+                
+                firework.style.left = x + 'px';
+                firework.style.top = y + 'px';
+                
+                fireworksContainer.appendChild(firework);
+                
+                // Remove firework after animation
+                setTimeout(() => {
+                    if (firework.parentNode) {
+                        firework.parentNode.removeChild(firework);
+                    }
+                }, 2000);
+            }, i * 200);
+        }
+        
+        // Remove fireworks container after all animations
+        setTimeout(() => {
+            if (fireworksContainer && fireworksContainer.parentNode) {
+                fireworksContainer.parentNode.removeChild(fireworksContainer);
+            }
+        }, 3000);
     }
     
     resetStats() {
@@ -246,6 +294,7 @@ class MemoryGame {
         this.timerElement.textContent = '00:00';
         this.pairsElement.textContent = `0/${this.totalPairs}`;
         this.messageElement.textContent = '';
+        this.messageElement.classList.remove('celebration-message');
         
         if (this.timerInterval) {
             clearInterval(this.timerInterval);
@@ -263,6 +312,12 @@ class MemoryGame {
         this.board.innerHTML = '';
         this.resetStats();
         this.messageElement.textContent = '';
+        
+        // Remove any existing fireworks
+        const fireworksContainer = document.querySelector('.fireworks-container');
+        if (fireworksContainer && fireworksContainer.parentNode) {
+            fireworksContainer.parentNode.removeChild(fireworksContainer);
+        }
     }
 }
 

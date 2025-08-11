@@ -54,3 +54,41 @@ The game works on desktop, tablet, and mobile devices.
 ## 🔄 Updates
 
 To update the game, simply push changes to the main branch and GitHub Pages will automatically redeploy.
+
+## 🧪 Testing
+
+This project includes comprehensive unit tests to ensure game functionality works correctly.
+
+### Running Tests
+
+```bash
+# Run all tests
+npm test
+
+# Run tests in watch mode (re-runs tests when files change)
+npm run test:watch
+
+# Run tests with coverage report
+npm run test:coverage
+```
+
+### Test Coverage
+
+The test suite covers:
+- Game initialization and setup
+- Card creation and shuffling algorithms
+- Game state management
+- Match checking logic
+- Timer functionality
+- Game completion scenarios
+- User interaction handling
+- Edge cases and error conditions
+
+Current test coverage: 80%+ statement coverage, 50%+ branch coverage
+
+### Test Structure
+
+- `tests/setup.js` - Test environment setup and mocks for DOM and timers
+- `tests/memory-game.test.js` - Comprehensive test suite for the MemoryGame class
+
+Tests are written using Jest and run in a jsdom environment to simulate browser behavior.

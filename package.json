@@ -1,0 +1,38 @@
+{
+  "name": "memory-game",
+  "version": "1.0.0",
+  "description": "A fun and interactive memory game built with vanilla JavaScript, HTML, and CSS.",
+  "main": "script.js",
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
+  },
+  "keywords": [
+    "memory",
+    "game",
+    "javascript",
+    "html",
+    "css"
+  ],
+  "author": "",
+  "license": "ISC",
+  "jest": {
+    "testEnvironment": "jsdom",
+    "setupFilesAfterEnv": [
+      "<rootDir>/tests/setup.js"
+    ],
+    "collectCoverageFrom": [
+      "script.js"
+    ],
+    "testMatch": [
+      "**/tests/**/*.test.js",
+      "**/?(*.)+(spec|test).js"
+    ]
+  },
+  "devDependencies": {
+    "jest": "^30.0.5",
+    "jest-environment-jsdom": "^30.0.5",
+    "jsdom": "^26.1.0"
+  }
+}

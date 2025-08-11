@@ -325,3 +325,8 @@ class MemoryGame {
 document.addEventListener('DOMContentLoaded', () => {
     new MemoryGame();
 });
+
+// Export for testing
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = MemoryGame;
+}

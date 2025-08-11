@@ -1,5 +1,10 @@
-class MemoryGame {
+class MemoryGameApp {
     constructor() {
+        this.apiUrl = window.location.origin + '/api';
+        this.token = localStorage.getItem('memory_game_token');
+        this.user = null;
+        
+        // Game elements
         this.board = document.getElementById('game-board');
         this.movesElement = document.getElementById('moves');
         this.timerElement = document.getElementById('timer');
@@ -10,6 +15,23 @@ class MemoryGame {
         this.gridSizeSelect = document.getElementById('grid-size');
         this.gameStats = document.getElementById('game-stats');
         
+        // Auth elements
+        this.authSection = document.getElementById('auth-section');
+        this.gameSection = document.getElementById('game-section');
+        this.leaderboardSection = document.getElementById('leaderboard-section');
+        this.loginTab = document.getElementById('login-tab');
+        this.registerTab = document.getElementById('register-tab');
+        this.loginForm = document.getElementById('login-form');
+        this.registerForm = document.getElementById('register-form');
+        this.authMessage = document.getElementById('auth-message');
+        this.usernameDisplay = document.getElementById('username-display');
+        this.logoutBtn = document.getElementById('logout-btn');
+        this.leaderboardBtn = document.getElementById('leaderboard-btn');
+        this.backToGameBtn = document.getElementById('back-to-game-btn');
+        this.leaderboardGridSize = document.getElementById('leaderboard-grid-size');
+        this.leaderboardContent = document.getElementById('leaderboard-content');
+        
+        // Game state
         this.cards = [];
         this.flippedCards = [];
         this.matchedPairs = 0;
@@ -21,17 +43,244 @@ class MemoryGame {
         this.totalPairs = 2;
         this.gameStarted = false;
         
-        this.bindInitialEvents();
+        this.init();
     }
     
-    bindInitialEvents() {
-        this.startBtn.addEventListener('click', () => {
-            this.startGame();
+    async init() {
+        this.bindEvents();
+        
+        // Check if user is already logged in
+        if (this.token) {
+            try {
+                await this.verifyToken();
+            } catch (error) {
+                this.logout();
+            }
+        } else {
+            this.showAuthSection();
+        }
+    }
+    
+    bindEvents() {
+        // Auth events
+        this.loginTab.addEventListener('click', () => this.switchAuthTab('login'));
+        this.registerTab.addEventListener('click', () => this.switchAuthTab('register'));
+        
+        document.getElementById('login-form-element').addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.handleLogin();
         });
         
-        this.restartBtn.addEventListener('click', () => {
-            this.restart();
+        document.getElementById('register-form-element').addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.handleRegister();
         });
+        
+        this.logoutBtn.addEventListener('click', () => this.logout());
+        
+        // Game events
+        this.startBtn.addEventListener('click', () => this.startGame());
+        this.restartBtn.addEventListener('click', () => this.restart());
+        this.leaderboardBtn.addEventListener('click', () => this.showLeaderboard());
+        this.backToGameBtn.addEventListener('click', () => this.showGameSection());
+        this.leaderboardGridSize.addEventListener('change', () => this.loadLeaderboard());
+    }
+    
+    switchAuthTab(tab) {
+        if (tab === 'login') {
+            this.loginTab.classList.add('active');
+            this.registerTab.classList.remove('active');
+            this.loginForm.style.display = 'block';
+            this.registerForm.style.display = 'none';
+        } else {
+            this.registerTab.classList.add('active');
+            this.loginTab.classList.remove('active');
+            this.registerForm.style.display = 'block';
+            this.loginForm.style.display = 'none';
+        }
+        this.hideAuthMessage();
+    }
+    
+    async handleLogin() {
+        const email = document.getElementById('login-email').value;
+        const password = document.getElementById('login-password').value;
+        
+        try {
+            const response = await fetch(`${this.apiUrl}/auth/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password }),
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                this.token = data.token;
+                this.user = data.user;
+                localStorage.setItem('memory_game_token', this.token);
+                this.showGameSection();
+                this.showAuthMessage('Login successful!', 'success');
+            } else {
+                this.showAuthMessage(data.error || 'Login failed', 'error');
+            }
+        } catch (error) {
+            this.showAuthMessage('Network error. Please try again.', 'error');
+        }
+    }
+    
+    async handleRegister() {
+        const username = document.getElementById('register-username').value;
+        const email = document.getElementById('register-email').value;
+        const password = document.getElementById('register-password').value;
+        
+        try {
+            const response = await fetch(`${this.apiUrl}/auth/register`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username, email, password }),
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                this.token = data.token;
+                this.user = data.user;
+                localStorage.setItem('memory_game_token', this.token);
+                this.showGameSection();
+                this.showAuthMessage('Registration successful!', 'success');
+            } else {
+                this.showAuthMessage(data.error || 'Registration failed', 'error');
+            }
+        } catch (error) {
+            this.showAuthMessage('Network error. Please try again.', 'error');
+        }
+    }
+    
+    async verifyToken() {
+        const response = await fetch(`${this.apiUrl}/auth/profile`, {
+            headers: {
+                'Authorization': `Bearer ${this.token}`,
+            },
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            this.user = data.user;
+            this.showGameSection();
+        } else {
+            throw new Error('Invalid token');
+        }
+    }
+    
+    logout() {
+        this.token = null;
+        this.user = null;
+        localStorage.removeItem('memory_game_token');
+        this.showAuthSection();
+        this.resetGame();
+    }
+    
+    showAuthSection() {
+        this.authSection.style.display = 'block';
+        this.gameSection.style.display = 'none';
+        this.leaderboardSection.style.display = 'none';
+    }
+    
+    showGameSection() {
+        this.authSection.style.display = 'none';
+        this.gameSection.style.display = 'block';
+        this.leaderboardSection.style.display = 'none';
+        
+        if (this.user) {
+            this.usernameDisplay.textContent = this.user.username;
+        }
+    }
+    
+    showLeaderboard() {
+        this.gameSection.style.display = 'none';
+        this.leaderboardSection.style.display = 'block';
+        this.loadLeaderboard();
+    }
+    
+    async loadLeaderboard() {
+        const gridSize = this.leaderboardGridSize.value;
+        
+        try {
+            const response = await fetch(`${this.apiUrl}/game/leaderboard/${gridSize}`);
+            const data = await response.json();
+            
+            if (response.ok) {
+                this.renderLeaderboard(data.leaderboard, gridSize);
+            } else {
+                this.leaderboardContent.innerHTML = '<div class="leaderboard-empty">Failed to load leaderboard</div>';
+            }
+        } catch (error) {
+            this.leaderboardContent.innerHTML = '<div class="leaderboard-empty">Network error loading leaderboard</div>';
+        }
+    }
+    
+    renderLeaderboard(scores, gridSize) {
+        if (!scores || scores.length === 0) {
+            this.leaderboardContent.innerHTML = `<div class="leaderboard-empty">No scores yet for ${gridSize}x${gridSize} grid</div>`;
+            return;
+        }
+        
+        let html = `
+            <table class="leaderboard-table">
+                <thead>
+                    <tr>
+                        <th class="rank">Rank</th>
+                        <th>Player</th>
+                        <th>Moves</th>
+                        <th>Time</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+        
+        scores.forEach((score, index) => {
+            const rankClass = index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : '';
+            const timeFormatted = this.formatTime(score.timeSeconds);
+            const dateFormatted = new Date(score.completedAt).toLocaleDateString();
+            
+            html += `
+                <tr>
+                    <td class="rank ${rankClass}">${score.rank}</td>
+                    <td>${score.username}</td>
+                    <td>${score.moves}</td>
+                    <td>${timeFormatted}</td>
+                    <td>${dateFormatted}</td>
+                </tr>
+            `;
+        });
+        
+        html += '</tbody></table>';
+        this.leaderboardContent.innerHTML = html;
+    }
+    
+    formatTime(seconds) {
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = seconds % 60;
+        return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+    }
+    
+    showAuthMessage(message, type) {
+        this.authMessage.textContent = message;
+        this.authMessage.className = `auth-message ${type}`;
+        this.authMessage.style.display = 'block';
+        
+        if (type === 'success') {
+            setTimeout(() => this.hideAuthMessage(), 3000);
+        }
+    }
+    
+    hideAuthMessage() {
+        this.authMessage.style.display = 'none';
     }
     
     startGame() {
@@ -45,14 +294,14 @@ class MemoryGame {
         this.startBtn.style.display = 'none';
         this.gridSizeSelect.disabled = true;
         
-        this.init();
+        this.initGame();
     }
     
-    init() {
+    initGame() {
         this.createCards();
         this.shuffleCards();
         this.renderCards();
-        this.bindEvents();
+        this.bindGameEvents();
         this.resetStats();
     }
     
@@ -142,7 +391,7 @@ class MemoryGame {
         });
     }
     
-    bindEvents() {
+    bindGameEvents() {
         this.board.addEventListener('click', (e) => {
             if (e.target.classList.contains('card') || e.target.parentElement.classList.contains('card')) {
                 const card = e.target.classList.contains('card') ? e.target : e.target.parentElement;
@@ -229,14 +478,44 @@ class MemoryGame {
         }, 1000);
     }
     
-    gameWon() {
+    async gameWon() {
         clearInterval(this.timerInterval);
         const finalTime = this.timerElement.textContent;
+        const timeSeconds = Math.floor((Date.now() - this.startTime) / 1000);
+        
         this.messageElement.textContent = `🎉 Congratulations! You won in ${this.moves} moves and ${finalTime}!`;
         this.messageElement.classList.add('celebration-message');
         
+        // Save score to backend
+        await this.saveScore(timeSeconds);
+        
         // Trigger fireworks animation
         this.createFireworks();
+    }
+    
+    async saveScore(timeSeconds) {
+        if (!this.token) return;
+        
+        try {
+            const response = await fetch(`${this.apiUrl}/game/score`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${this.token}`,
+                },
+                body: JSON.stringify({
+                    gridSize: this.gridSize,
+                    moves: this.moves,
+                    timeSeconds: timeSeconds,
+                }),
+            });
+            
+            if (response.ok) {
+                console.log('Score saved successfully');
+            }
+        } catch (error) {
+            console.error('Failed to save score:', error);
+        }
     }
     
     createFireworks() {
@@ -319,9 +598,14 @@ class MemoryGame {
             fireworksContainer.parentNode.removeChild(fireworksContainer);
         }
     }
+    
+    resetGame() {
+        this.restart();
+        this.gameStarted = false;
+    }
 }
 
-// Initialize the game when the page loads
+// Initialize the app when the page loads
 document.addEventListener('DOMContentLoaded', () => {
-    new MemoryGame();
+    new MemoryGameApp();
 });
